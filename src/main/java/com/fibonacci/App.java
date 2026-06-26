@@ -14,6 +14,8 @@ public class App {
      * @param args the command line arguments, numbers, separated by spaces
      */
     public static void main(String[] args) {
+        System.out.println("Welcome to the Fibonacci Sequence Generator!");
+
         if(args.length == 0) {
             args = getUserInput();
         }
