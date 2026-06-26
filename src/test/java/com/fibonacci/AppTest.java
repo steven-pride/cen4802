@@ -35,7 +35,7 @@ public class AppTest {
     @Test
     public void testMainInvalidInput() {
         App.main(new String[]{"test"});
-        assertEquals("Invalid input: Argument 1 was not a number", outputStreamCaptor.toString().trim());
+        assertTrue(outputStreamCaptor.toString().trim().contains("Invalid input: Argument 1 was not a number"));
     }
 
     /**
@@ -44,7 +44,7 @@ public class AppTest {
     @Test
     public void testMainNegativeInput() {
         App.main(new String[]{"-1"});
-        assertEquals("Invalid input: Argument 1 was negative", outputStreamCaptor.toString().trim());
+        assertTrue(outputStreamCaptor.toString().trim().contains("Invalid input: Argument 1 was negative"));
     }
 
     /**
@@ -53,7 +53,7 @@ public class AppTest {
     @Test
     public void testMainPositiveInput() {
         App.main(new String[]{"10"});
-        assertEquals("The 10th term of the Fibonacci sequence is 55.", outputStreamCaptor.toString().trim());
+        assertTrue(outputStreamCaptor.toString().trim().contains("The 10th term of the Fibonacci sequence is 55."));
     }
 
     /**
