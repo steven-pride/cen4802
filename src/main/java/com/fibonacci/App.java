@@ -2,12 +2,14 @@ package com.fibonacci;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 /**
  * This class is the entry point of the program.
  * It initializes the Spring Boot application.
  */
 @SpringBootApplication
+@ComponentScan(basePackages = "com.fibonacci")
 public class App {
 
     /**
