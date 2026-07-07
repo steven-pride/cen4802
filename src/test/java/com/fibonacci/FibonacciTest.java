@@ -1,5 +1,6 @@
 package com.fibonacci;
 
+import com.fibonacci.service.Fibonacci;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
