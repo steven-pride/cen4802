@@ -1,9 +1,12 @@
 package com.fibonacci;
 
+import org.springframework.stereotype.Component;
+
 /**
  * This class implements the Fibonacci sequence interface, providing methods to calculate and display
  * the Fibonacci value.
  */
+@Component
 public class Fibonacci implements FibonacciSequence {
     /**
      * Calculates the Fibonacci value for the given index.
