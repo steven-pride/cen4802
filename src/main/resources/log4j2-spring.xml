@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %level [%thread] %logger - %msg%n"/>
+        </Console>
+        <RollingFile name="ApplicationFile" fileName="logs/fibonacci-app.log" filePattern="$logs/fibonacci-app-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger - %msg%n" />
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10240KB" />
+            </Policies>
+            <DefaultRolloverStrategy max="1" />
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.fibonacci" level="debug"/>
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="ApplicationFile"/>
+        </Root>
+    </Loggers>
+</Configuration>
