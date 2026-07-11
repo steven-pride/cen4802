@@ -1,5 +1,7 @@
 package com.fibonacci;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 /**
@@ -8,14 +10,26 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class Fibonacci implements FibonacciSequence {
+
+    private static final Logger logger = LogManager.getLogger(Fibonacci.class);
+
     /**
-     * Calculates the Fibonacci value for the given index.
+     * Recursively calculates the Fibonacci value for the given index.
      *
      * @param n the index of the Fibonacci value to calculate
      * @return the Fibonacci value at the given index
+     * @throws IllegalArgumentException if the index is negative
      */
     @Override
     public Long getFibbonacciValue(Integer n) {
+        // The Fibonacci sequence is undefined for negative indexes
+        if (n < 0) {
+            logger.error("Rejected Fibonacci calculation for negative index {}", n);
+            throw new IllegalArgumentException("Fibonacci index must not be negative: " + n);
+        }
+
+        logger.debug("Calculating Fibonacci value for index {}", n);
+
         // Base case: F(0) = 0 and F(1) = 1
         if (n <= 1) {
             return Long.valueOf(n);
@@ -34,6 +48,8 @@ public class Fibonacci implements FibonacciSequence {
      * @return a string representation of the Fibonacci value
      */
     public String toString(Integer nThValue, Long fibonacciValue) {
+        logger.debug("Formatting result message for index {} and value {}", nThValue, fibonacciValue);
+
         String nThValueString;
 
         // Determine the appropriate suffix for the Fibonacci index value

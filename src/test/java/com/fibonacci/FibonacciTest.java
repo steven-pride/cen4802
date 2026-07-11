@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Test the Fibonacci class.
@@ -35,6 +36,14 @@ public class FibonacciTest {
     public void testGetFibbonacciValueZero() {
         Long fibonacciValue = fibonacci.getFibbonacciValue(0);
         assertEquals(0, fibonacciValue);
+    }
+
+    /**
+     * Test the getFibbonacciValue method with a negative number.
+     */
+    @Test
+    public void testGetFibbonacciValueNegativeThrows() {
+        assertThrows(IllegalArgumentException.class, () -> fibonacci.getFibbonacciValue(-1));
     }
 
     /**
