@@ -43,6 +43,13 @@ public class AppTest {
     }
 
     @Test
+    public void testFibonacciEndpointNonNumeric() throws Exception {
+        mockMvc.perform(get("/fibonacci").param("n", "abc"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Invalid input: n must be an integer"));
+    }
+
+    @Test
     public void testFibonacciEndpointDefault() throws Exception {
         mockMvc.perform(get("/fibonacci"))
                 .andExpect(status().isOk())
