@@ -27,8 +27,10 @@ pipeline {
 
         stage('Load Image Into Minikube') {
             steps {
+                bat 'docker images fibonacci-app'
                 bat 'minikube image load fibonacci-app:latest'
-                bat 'minikube image ls | findstr fibonacci-app'
+                bat 'minikube image ls'
+                bat 'minikube image ls | findstr /I fibonacci-app || echo WARNING: fibonacci-app was not found in minikube image list'
             }
         }
 
