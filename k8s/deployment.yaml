@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fibonacci-app
+  labels:
+    app: fibonacci-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fibonacci-app
+  template:
+    metadata:
+      labels:
+        app: fibonacci-app
+    spec:
+      containers:
+        - name: fibonacci-app
+          image: fibonacci-app:latest
+          imagePullPolicy: Never
+          ports:
+            - name: http
+              containerPort: 8085
+            - name: jmx
+              containerPort: 9010
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: >-
+                -Dcom.sun.management.jmxremote
+                -Dcom.sun.management.jmxremote.port=9010
+                -Dcom.sun.management.jmxremote.rmi.port=9010
+                -Dcom.sun.management.jmxremote.authenticate=false
+                -Dcom.sun.management.jmxremote.ssl=false
+                -Djava.rmi.server.hostname=127.0.0.1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

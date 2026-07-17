@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+
+    options {
+        skipDefaultCheckout(true)
+    }
+
+    environment {
+        MINIKUBE_HOME = 'C:\\Users\\smfpr'
+        KUBECONFIG = 'C:\\Users\\smfpr\\.kube\\config'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Verify Kubernetes Files') {
+            steps {
+                bat 'dir k8s'
+                bat 'type k8s\\deployment.yaml'
+                bat 'type k8s\\service.yaml'
+            }
+        }
+
+        stage('Load Image Into Minikube') {
+            steps {
+                bat 'minikube image load fibonacci-app:latest'
+                bat 'minikube image ls | findstr fibonacci-app'
+            }
+        }
+
+        stage('Apply Kubernetes Manifests') {
+            steps {
+                bat 'kubectl apply -f k8s\\deployment.yaml'
+                bat 'kubectl apply -f k8s\\service.yaml'
+            }
+        }
+
+        stage('Restart Deployment') {
+            steps {
+                bat 'kubectl rollout restart deployment fibonacci-app'
+                bat 'kubectl rollout status deployment fibonacci-app'
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                bat 'kubectl get deployment fibonacci-app'
+                bat 'kubectl get pods -l app=fibonacci-app -o wide'
+                bat 'kubectl get service fibonacci-app'
+            }
+        }
+    }
+}
