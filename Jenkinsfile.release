@@ -17,20 +17,34 @@ pipeline {
             }
         }
 
-        stage('Verify Kubernetes Files') {
+        stage('Verify Minikube') {
             steps {
-                bat 'dir k8s'
-                bat 'type k8s\\deployment.yaml'
-                bat 'type k8s\\service.yaml'
+                bat 'minikube -p minikube status'
+                bat 'kubectl config current-context'
+                bat 'kubectl get nodes'
+            }
+        }
+
+        stage('Verify Local Docker Image') {
+            steps {
+                script {
+                    def imageExists = bat(
+                        script: 'docker image inspect fibonacci-app:latest >NUL 2>&1',
+                        returnStatus: true
+                    )
+
+                    if (imageExists != 0) {
+                        error 'Docker image fibonacci-app:latest was not found. Run FibonacciApp-Pipeline first.'
+                    }
+                }
+
+                bat 'docker images fibonacci-app'
             }
         }
 
         stage('Load Image Into Minikube') {
             steps {
-                bat 'docker images fibonacci-app'
-                bat 'minikube image load fibonacci-app:latest'
-                bat 'minikube image ls'
-                bat 'minikube image ls | findstr /I fibonacci-app || echo WARNING: fibonacci-app was not found in minikube image list'
+                bat 'minikube -p minikube image load fibonacci-app:latest --daemon --overwrite=true'
             }
         }
 
@@ -44,7 +58,7 @@ pipeline {
         stage('Restart Deployment') {
             steps {
                 bat 'kubectl rollout restart deployment fibonacci-app'
-                bat 'kubectl rollout status deployment fibonacci-app'
+                bat 'kubectl rollout status deployment fibonacci-app --timeout=120s'
             }
         }
 
