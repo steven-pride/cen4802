@@ -8,7 +8,7 @@ pipeline {
 
     environment {
             KUBECONFIG = 'C:\\Users\\smfpr\\.kube\\config'
-        }
+    }
 
     parameters {
         choice(
@@ -16,10 +16,6 @@ pipeline {
             choices: ['apply', 'plan', 'destroy'],
             description: 'Terraform operation to perform'
         )
-    }
-
-    environment {
-        TERRAFORM_DIR    = 'infrastructure'
     }
 
     stages {
