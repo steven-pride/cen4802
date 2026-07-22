@@ -6,6 +6,10 @@ pipeline {
         timestamps()
     }
 
+    environment {
+            KUBECONFIG = 'C:\\Users\\smfpr\\.kube\\config'
+        }
+
     parameters {
         choice(
             name: 'TERRAFORM_ACTION',

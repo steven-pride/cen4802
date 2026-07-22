@@ -3,10 +3,10 @@ pipeline {
 
     options {
         skipDefaultCheckout(true)
+        timestamps()
     }
 
     environment {
-        MINIKUBE_HOME = 'C:\\Users\\smfpr'
         KUBECONFIG = 'C:\\Users\\smfpr\\.kube\\config'
     }
 
