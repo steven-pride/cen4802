@@ -1,0 +1,165 @@
+pipeline {
+    agent any
+
+    options {
+        disableConcurrentBuilds()
+        timestamps()
+    }
+
+    parameters {
+        choice(
+            name: 'TERRAFORM_ACTION',
+            choices: ['apply', 'plan', 'destroy'],
+            description: 'Terraform operation to perform'
+            defaultValue: 'apply'
+        )
+    }
+
+    environment {
+        TERRAFORM_DIR    = 'infrastructure'
+    }
+
+    stages {
+        stage('Pull Code') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/steven-pride/cen4802.git'
+            }
+        }
+
+        stage('Verify Tools') {
+            steps {
+                bat '''
+                    terraform version
+                    kind version
+                    kubectl version --client
+                    docker version
+                '''
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                dir("infrastructure") {
+                    bat 'terraform init -input=false'
+                }
+            }
+        }
+
+        stage('Terraform Format Check') {
+            steps {
+                dir("infrastructure") {
+                    bat 'terraform fmt -check -recursive'
+                }
+            }
+        }
+
+        stage('Terraform Validate') {
+            steps {
+                dir("infrastructure") {
+                    bat 'terraform validate'
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            when {
+                expression {
+                    params.TERRAFORM_ACTION == 'apply' ||
+                    params.TERRAFORM_ACTION == 'plan'
+                }
+            }
+
+            steps {
+                dir("infrastructure") {
+                    bat 'terraform plan -input=false -out=tfplan'
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            when {
+                expression {
+                    params.TERRAFORM_ACTION == 'apply'
+                }
+            }
+
+            steps {
+                dir("infrastructure") {
+                    bat 'terraform apply -input=false tfplan'
+                }
+            }
+        }
+
+        stage('Verify Infrastructure') {
+            when {
+                expression {
+                    params.TERRAFORM_ACTION == 'apply'
+                }
+            }
+
+            steps {
+                bat '''
+                    kubectl cluster-info --context kind-fibonacci-cluster
+                    kubectl get nodes --context kind-fibonacci-cluster -o wide
+                '''
+
+                dir("infrastructure") {
+                    bat 'terraform state list'
+                    bat 'terraform output'
+                }
+            }
+        }
+
+        stage('Terraform Destroy Plan') {
+            when {
+                expression {
+                    params.TERRAFORM_ACTION == 'destroy'
+                }
+            }
+
+            steps {
+                dir("infrastructure") {
+                    bat 'terraform plan -destroy -input=false -out=destroy.tfplan'
+                }
+            }
+        }
+
+        stage('Terraform Destroy') {
+            when {
+                expression {
+                    params.TERRAFORM_ACTION == 'destroy'
+                }
+            }
+
+            steps {
+                dir("infrastructure") {
+                    bat 'terraform apply -input=false destroy.tfplan'
+                }
+            }
+        }
+
+        stage('Trigger Release Pipeline') {
+            when {
+                expression {
+                    params.TERRAFORM_ACTION == 'apply'
+                }
+            }
+
+            steps {
+                build job: 'FibonacciApp-Release',
+                    wait: true,
+                    propagate: true
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts(
+                artifacts: 'infrastructure/kind/.terraform.lock.hcl',
+                allowEmptyArchive: true
+            )
+        }
+    }
+}

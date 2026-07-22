@@ -17,11 +17,10 @@ pipeline {
             }
         }
 
-        stage('Verify Minikube') {
+        stage('Verify Kubernetes Cluster') {
             steps {
-                bat 'minikube -p minikube status'
-                bat 'kubectl config current-context'
-                bat 'kubectl get nodes'
+                bat 'kubectl cluster-info --context kind-fibonacci-cluster'
+                bat 'kubectl get nodes --context kind-fibonacci-cluster'
             }
         }
 
@@ -42,9 +41,9 @@ pipeline {
             }
         }
 
-        stage('Load Image Into Minikube') {
+        stage('Load Image into kind') {
             steps {
-                bat 'minikube -p minikube image load fibonacci-app:latest --daemon --overwrite=true'
+                bat 'kind load docker-image fibonacci-app:latest --name fibonacci-cluster'
             }
         }
 
@@ -64,9 +63,10 @@ pipeline {
 
         stage('Verify Deployment') {
             steps {
-                bat 'kubectl get deployment fibonacci-app'
-                bat 'kubectl get pods -l app=fibonacci-app -o wide'
-                bat 'kubectl get service fibonacci-app'
+                bat 'kubectl --context kind-fibonacci-cluster rollout status deployment/fibonacci-app --timeout=120s'
+                bat 'kubectl --context kind-fibonacci-cluster get deployment fibonacci-app'
+                bat 'kubectl --context kind-fibonacci-cluster get pods -l app=fibonacci-app -o wide'
+                bat 'kubectl --context kind-fibonacci-cluster get service fibonacci-app'
             }
         }
     }
