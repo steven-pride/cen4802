@@ -20,8 +20,20 @@ pipeline {
 
         stage('Verify Kubernetes Cluster') {
             steps {
-                bat 'kubectl cluster-info --context kind-fibonacci-cluster'
-                bat 'kubectl get nodes --context kind-fibonacci-cluster'
+                bat '''
+                    kubectl cluster-info --context kind-fibonacci-cluster
+
+                    kubectl wait ^
+                        --context kind-fibonacci-cluster ^
+                        --for=condition=Ready ^
+                        nodes ^
+                        --all ^
+                        --timeout=180s
+
+                    kubectl get nodes ^
+                        --context kind-fibonacci-cluster ^
+                        -o wide
+                '''
             }
         }
 
@@ -74,6 +86,15 @@ pipeline {
         stage('Performance Test') {
             steps {
                 bat '''
+                    curl.exe ^
+                        --fail ^
+                        --silent ^
+                        --show-error ^
+                        --retry 10 ^
+                        --retry-all-errors ^
+                        --retry-delay 2 ^
+                        "http://127.0.0.1:8085/actuator/health/readiness" >NUL
+
                     if exist performance-results (
                         rmdir /s /q performance-results
                     )

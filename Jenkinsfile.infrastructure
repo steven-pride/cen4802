@@ -100,7 +100,23 @@ pipeline {
             steps {
                 bat '''
                     kubectl cluster-info --context kind-fibonacci-cluster
-                    kubectl get nodes --context kind-fibonacci-cluster -o wide
+
+                    kubectl wait ^
+                        --context kind-fibonacci-cluster ^
+                        --for=condition=Ready ^
+                        nodes ^
+                        --all ^
+                        --timeout=180s
+
+                    kubectl ^
+                        --context kind-fibonacci-cluster ^
+                        --namespace kube-system ^
+                        rollout status deployment/coredns ^
+                        --timeout=120s
+
+                    kubectl get nodes ^
+                        --context kind-fibonacci-cluster ^
+                        -o wide
                 '''
 
                 dir("infrastructure") {
