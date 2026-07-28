@@ -14,7 +14,7 @@ resource "kind_cluster" "fibonacci" {
         listen_address = "127.0.0.1"
         protocol       = "TCP"
       }
-      
+
       extra_port_mappings {
         container_port = 30910
         host_port      = 9010
