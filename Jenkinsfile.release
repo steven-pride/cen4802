@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         KUBECONFIG = 'C:\\Users\\smfpr\\.kube\\config'
-        JMETER_HOME = 'C:\\apache-jmeter-5.6.3\\bin'
+        JMETER_HOME = 'C:\\apache-jmeter-5.6.3'
     }
 
     stages {
@@ -80,7 +80,7 @@ pipeline {
 
                     mkdir performance-results
 
-                    call "%JMETER_HOME%\\jmeter.bat" ^
+                    call "%JMETER_HOME%\\bin\\jmeter.bat" ^
                         -n ^
                         -t performance\\fibonacci-load-test.jmx ^
                         -l performance-results\\results.jtl ^
