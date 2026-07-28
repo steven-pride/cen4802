@@ -13,3 +13,7 @@ spec:
       port: 8085
       targetPort: 8085
       nodePort: 31693
+    - name: jmx
+      port: 9010
+      targetPort: 9010
+      nodePort: 30910

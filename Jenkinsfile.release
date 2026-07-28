@@ -8,6 +8,7 @@ pipeline {
 
     environment {
         KUBECONFIG = 'C:\\Users\\smfpr\\.kube\\config'
+        JMETER_HOME = 'C:\\apache-jmeter-5.6.3\\bin'
     }
 
     stages {
@@ -67,6 +68,42 @@ pipeline {
                 bat 'kubectl --context kind-fibonacci-cluster get deployment fibonacci-app'
                 bat 'kubectl --context kind-fibonacci-cluster get pods -l app=fibonacci-app -o wide'
                 bat 'kubectl --context kind-fibonacci-cluster get service fibonacci-app'
+            }
+        }
+
+        stage('Performance Test') {
+            steps {
+                bat '''
+                    if exist performance-results (
+                        rmdir /s /q performance-results
+                    )
+
+                    mkdir performance-results
+
+                    call "%JMETER_HOME%\\jmeter.bat" ^
+                        -n ^
+                        -t performance\\fibonacci-load-test.jmx ^
+                        -l performance-results\\results.jtl ^
+                        -j performance-results\\jmeter.log ^
+                        -e ^
+                        -o performance-results\\dashboard
+                '''
+
+                perfReport(
+                    sourceDataFiles: 'performance-results/results.jtl',
+                    errorUnstableThreshold: 0,
+                    errorFailedThreshold: 0,
+                    failBuildIfNoResultFile: true
+                )
+            }
+
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'performance-results/**',
+                        allowEmptyArchive: true
+                    )
+                }
             }
         }
     }
